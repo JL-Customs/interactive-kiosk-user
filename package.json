@@ -1,6 +1,6 @@
 {
   "name": "jl-customs-photo-gallery",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Interactive kiosk app for JL Customs",
   "main": "main.js",
   "scripts": {
@@ -19,7 +19,7 @@
   },
   "build": {
     "appId": "com.jlcustoms.user",
-    "productName": "JL Customs",
+    "productName": "JL-Customs",
     "directories": {
       "output": "dist"
     },
