@@ -1,7 +1,7 @@
 {
   "name": "jl-customs-photo-gallery",
-  "version": "0.0.1",
-  "description": "Photo gallery display app that rotates through uploaded photos",
+  "version": "0.0.2",
+  "description": "Interactive kiosk app for JL Customs",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
