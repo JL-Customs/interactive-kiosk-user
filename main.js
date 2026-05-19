@@ -8,13 +8,22 @@ const { autoUpdater } = require('electron-updater');
 
 const UPDATE_INTERVAL_MS = 1 * 60 * 1000; // 1 min for testing; change to 60 * 60 * 1000 for production
 
+let logPath;
+function log(msg) {
+  const line = `[${new Date().toISOString()}] ${msg}\n`;
+  process.stdout.write(line);
+  try { if (logPath) fs.appendFileSync(logPath, line); } catch {}
+}
+
 autoUpdater.autoDownload = true;
 autoUpdater.autoInstallOnAppQuit = false;
 
-autoUpdater.on('update-downloaded', () => {
-  // Silent install + relaunch as soon as update is ready
-  autoUpdater.quitAndInstall(true, true);
-});
+autoUpdater.on('checking-for-update',   () => log('Checking for update...'));
+autoUpdater.on('update-available',      (i) => log(`Update available: v${i.version}`));
+autoUpdater.on('update-not-available',  (i) => log(`Up to date: v${i.version}`));
+autoUpdater.on('download-progress',     (p) => log(`Downloading: ${Math.round(p.percent)}%`));
+autoUpdater.on('update-downloaded',     (i) => { log(`Update downloaded: v${i.version} — installing`); autoUpdater.quitAndInstall(true, true); });
+autoUpdater.on('error',                 (e) => log(`Updater error: ${e.message}`));
 
 function setupCache() {
   cacheDir = path.join(app.getPath('userData'), 'photo-cache');
@@ -97,11 +106,13 @@ ipcMain.handle('cache:get-local-path', (event, filename) => {
 });
 
 app.on('ready', () => {
+  logPath = path.join(app.getPath('userData'), 'updater.log');
+  log(`App started — version ${app.getVersion()}`);
   setupCache();
   Menu.setApplicationMenu(null);
   createWindow();
-  autoUpdater.checkForUpdates().catch(() => {});
-  setInterval(() => autoUpdater.checkForUpdates().catch(() => {}), UPDATE_INTERVAL_MS);
+  autoUpdater.checkForUpdates().catch((e) => log(`checkForUpdates error: ${e.message}`));
+  setInterval(() => autoUpdater.checkForUpdates().catch((e) => log(`checkForUpdates error: ${e.message}`)), UPDATE_INTERVAL_MS);
 });
 
 app.on('window-all-closed', () => {

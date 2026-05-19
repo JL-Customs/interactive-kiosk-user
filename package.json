@@ -1,6 +1,6 @@
 {
   "name": "jl-customs-photo-gallery",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Interactive kiosk app for JL Customs",
   "main": "main.js",
   "scripts": {
