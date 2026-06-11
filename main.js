@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, session } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const https = require('https');
@@ -6,7 +6,7 @@ const http = require('http');
 const { pathToFileURL } = require('url');
 const { autoUpdater } = require('electron-updater');
 
-const UPDATE_INTERVAL_MS = 1 * 60 * 1000; 
+const UPDATE_INTERVAL_MS = 15 * 60 * 1000; 
 
 let logPath;
 function log(msg) {
@@ -47,7 +47,13 @@ function createWindow() {
 
   mainWindow.removeMenu();
   mainWindow.loadFile('index.html');
-  // mainWindow.webContents.openDevTools(); // Uncomment for development
+
+  mainWindow.webContents.on('did-navigate', (event, url) => {
+    if (!url.startsWith('file://') && !url.includes('jlcustoms-expert-kiosk')) {
+      mainWindow.loadFile('home.html');
+    }
+  });
+
 }
 
 ipcMain.handle('log:write', (event, msg) => log(msg));
@@ -112,6 +118,11 @@ app.on('ready', () => {
   log(`App started — version ${app.getVersion()}`);
   setupCache();
   Menu.setApplicationMenu(null);
+
+  session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
+    callback(true);
+  });
+
   createWindow();
   autoUpdater.checkForUpdates().catch((e) => log(`checkForUpdates error: ${e.message}`));
   setInterval(() => autoUpdater.checkForUpdates().catch((e) => log(`checkForUpdates error: ${e.message}`)), UPDATE_INTERVAL_MS);

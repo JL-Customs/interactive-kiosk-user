@@ -45,6 +45,10 @@
       gap: 20px;
     }
 
+    .estimate-btn, .contact-btn {
+      width: 620px;
+    }
+
     .tagline {
       font-size: 1.1rem;
       color: #888;
@@ -71,24 +75,169 @@
 
     /* ── Contact button (bottom-left) ── */
     .contact-btn {
-      position: fixed;
-      bottom: 28px;
-      left: 28px;
-      padding: 12px 22px;
-      font-size: 0.95rem;
+      padding: 44px 100px;
+      font-size: 2.6rem;
       font-weight: bold;
       color: #111;
       background: #fff;
       border: 2px solid #e0e0e0;
-      border-radius: 8px;
+      border-radius: 14px;
       cursor: pointer;
       transition: background 0.15s, border-color 0.15s, transform 0.1s;
       user-select: none;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.05em;
     }
 
     .contact-btn:hover { background: #f0f0f0; border-color: #c0392b; }
     .contact-btn:active { transform: scale(0.97); }
+
+
+    /* ── Contact Modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      width: min(480px, 90vw);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      background: #f5f5f5;
+      border-bottom: 2px solid #c0392b;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-header h2 { font-size: 1.3rem; }
+    .modal-close {
+      background: none;
+      border: none;
+      color: #888;
+      font-size: 1.6rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .modal-close:hover { color: #111; }
+
+    .modal-body { padding: 28px 24px; }
+
+    .contact-intro {
+      color: #555;
+      font-size: 1rem;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .contact-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 1.1rem;
+    }
+    .contact-row:last-child { border-bottom: none; }
+    .contact-icon { font-size: 1.4rem; width: 28px; text-align: center; flex-shrink: 0; }
+    .contact-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: #888; margin-bottom: 2px; }
+    .contact-value { font-weight: bold; color: #111; }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid #eee;
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-secondary {
+      flex: 1;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: bold;
+      background: none;
+      border: 2px solid #ddd;
+      color: #555;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: center;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-secondary:hover { border-color: #333; color: #111; }
+
+    .btn-primary {
+      flex: 1;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: bold;
+      background: #c0392b;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.2s;
+    }
+    .btn-primary:hover { background: #a93226; }
+    .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+
+    .btn-back {
+      padding: 12px 24px;
+      font-size: 1rem;
+      background: none;
+      border: 2px solid #ddd;
+      color: #555;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-back:hover { border-color: #333; color: #111; }
+
+    .email-prompt { color: #555; margin-bottom: 20px; font-size: 1rem; line-height: 1.5; }
+    .email-input {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 1.1rem;
+      background: #fff;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      color: #111;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .email-input:focus { border-color: #c0392b; }
+    .email-error { color: #e74c3c; font-size: 0.9rem; margin-top: 10px; min-height: 1.2em; }
+
+    .confirm-icon { font-size: 3rem; color: #2ecc71; margin-bottom: 16px; }
+    .confirm-msg { font-size: 1.1rem; color: #444; line-height: 1.6; }
+
+    @media print {
+      body > * { display: none !important; }
+      #contact-print-area { display: block !important; }
+    }
+
+    #contact-print-area {
+      display: none;
+      font-family: sans-serif;
+      color: #000;
+      padding: 40px;
+    }
+    #contact-print-area h1 { font-size: 1.6rem; margin-bottom: 4px; }
+    #contact-print-area .print-sub { color: #555; font-size: 1rem; margin-bottom: 28px; }
+    #contact-print-area .print-row { font-size: 1.1rem; margin-bottom: 12px; }
+    #contact-print-area .print-row span { font-weight: bold; }
   </style>
 </head>
 <body>
@@ -100,15 +249,231 @@
   <main>
     <!-- <p class="tagline">Custom Commercial Vehicles</p> -->
     <button class="estimate-btn" onclick="window.location.href='vehicle-select.html'">Get an Estimate</button>
+    <button class="contact-btn" onclick="openContactModal()">Contact an Expert</button>
   </main>
 
-  <button class="contact-btn" onclick="window.location.href='contact.html'">Contact an Expert</button>
+  <div id="contact-print-area"></div>
+
+  <div class="modal-overlay" id="contact-overlay">
+    <div class="modal">
+
+      <div class="modal-header">
+        <h2 id="contact-modal-title">Contact an Expert</h2>
+        <button class="modal-close" onclick="closeContactModal()">&times;</button>
+      </div>
+
+      <!-- Step: details -->
+      <div id="contact-step-details">
+        <div class="modal-body">
+          <p class="email-prompt">Please enter your name and phone number to continue.</p>
+          <input type="text" id="contact-name-input" class="email-input" placeholder="Your Name" autocomplete="off" style="margin-bottom: 12px;">
+          <input type="tel" id="contact-phone-input" class="email-input" placeholder="Phone Number" autocomplete="off">
+          <p class="email-error" id="contact-details-error"></p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-back" onclick="closeContactModal()">Cancel</button>
+          <button class="btn-primary" onclick="submitContactDetails()">Continue</button>
+        </div>
+      </div>
+
+      <div id="contact-step-info">
+        <div class="modal-body">
+          <p class="contact-intro">Speak directly with one of our experts - we're happy to help.</p>
+          <div class="contact-row">
+            <span class="contact-icon">&#128222;</span>
+            <div>
+              <div class="contact-label">Phone</div>
+              <div class="contact-value">(555) 123-4567</div>
+            </div>
+          </div>
+          <div class="contact-row">
+            <span class="contact-icon">&#9993;</span>
+            <div>
+              <div class="contact-label">Email</div>
+              <div class="contact-value">email@email.com</div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer" style="flex-direction:column; gap:10px;">
+          <div style="display:flex; gap:10px; width:100%;">
+            <button class="btn-secondary" style="flex:1;" onclick="printContactInfo()">&#128438; Print</button>
+            <button class="btn-secondary" style="flex:1;" onclick="showContactStep('email')">&#9993; Email Me</button>
+          </div>
+          <button class="btn-primary" style="width:100%;" onclick="startVideoCall()">Video Call an Expert</button>
+        </div>
+      </div>
+
+      <!-- Step: email -->
+      <div id="contact-step-email" style="display:none;">
+        <div class="modal-body">
+          <p class="email-prompt">Enter your email and we'll send you our contact information.</p>
+          <input type="email" id="contact-email-input" class="email-input" placeholder="yourname@example.com" autocomplete="off">
+          <p class="email-error" id="contact-email-error"></p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-back" onclick="showContactStep('info')">&#8592; Back</button>
+          <button class="btn-primary" id="contact-btn-send" onclick="sendContactEmail()">Send</button>
+        </div>
+      </div>
+
+      <!-- Step: confirm -->
+      <div id="contact-step-confirm" style="display:none;">
+        <div class="modal-body" style="text-align:center; padding: 40px 24px;">
+          <div class="confirm-icon">&#10003;</div>
+          <p class="confirm-msg" id="contact-confirm-msg"></p>
+        </div>
+        <div class="modal-footer" style="justify-content:center;">
+          <button class="btn-primary" onclick="closeContactModal()" style="flex:none; padding:12px 40px;">Done</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
 
   <script>
-    const TIMEOUT_MS = 60 * 1000;
+    const serverUrl = 'https://interactive-monitor-thing.onrender.com';
+    let currentContactLeadId = null;
+
+    function openContactModal() {
+      resetTimer();
+      document.getElementById('contact-name-input').value = sessionStorage.getItem('kiosk_name') || '';
+      document.getElementById('contact-phone-input').value = sessionStorage.getItem('kiosk_phone') || '';
+      document.getElementById('contact-details-error').textContent = '';
+      document.getElementById('contact-email-input').value = '';
+      document.getElementById('contact-email-error').textContent = '';
+      showContactStep('details');
+      document.getElementById('contact-overlay').classList.add('open');
+    }
+
+    function closeContactModal() {
+      document.getElementById('contact-overlay').classList.remove('open');
+      currentContactLeadId = null;
+      resetTimer();
+    }
+
+    function showContactStep(step) {
+      document.getElementById('contact-step-details').style.display = step === 'details' ? '' : 'none';
+      document.getElementById('contact-step-info').style.display    = step === 'info'    ? '' : 'none';
+      document.getElementById('contact-step-email').style.display   = step === 'email'   ? '' : 'none';
+      document.getElementById('contact-step-confirm').style.display = step === 'confirm' ? '' : 'none';
+      const titles = { details: 'Contact an Expert', info: 'Contact an Expert', email: 'Send Contact Info', confirm: 'Info Sent' };
+      document.getElementById('contact-modal-title').textContent = titles[step];
+    }
+
+    function submitContactDetails() {
+      const name = document.getElementById('contact-name-input').value.trim();
+      const phone = document.getElementById('contact-phone-input').value.trim();
+      const errorEl = document.getElementById('contact-details-error');
+      if (!name) { errorEl.textContent = 'Please enter your name.'; return; }
+      if (!phone) { errorEl.textContent = 'Please enter your phone number.'; return; }
+      errorEl.textContent = '';
+      sessionStorage.setItem('kiosk_name', name);
+      sessionStorage.setItem('kiosk_phone', phone);
+      fetch(`${serverUrl}/api/leads`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, phone, source: 'contact' }),
+      })
+        .then(r => r.json())
+        .then(data => { if (data.lead) currentContactLeadId = data.lead.id; })
+        .catch(() => {});
+      showContactStep('info');
+    }
+
+    function printContactInfo() {
+      const name = document.getElementById('contact-name-input').value.trim();
+      const phone = document.getElementById('contact-phone-input').value.trim();
+      const customerLine = (name || phone)
+        ? `<div class="print-row">Customer: <span>${[name, phone].filter(Boolean).join(' • ')}</span></div>`
+        : '';
+      document.getElementById('contact-print-area').innerHTML = `
+        <h1>JL Customs</h1>
+        <div class="print-sub">Contact an Expert</div>
+        ${customerLine}
+        <div class="print-row">Phone: <span>(555) 123-4567</span></div>
+        <div class="print-row">Email: <span>info@jlcustoms.com</span></div>
+      `;
+      closeContactModal();
+      window.print();
+    }
+
+    async function sendContactEmail() {
+      const email = document.getElementById('contact-email-input').value.trim();
+      const errorEl = document.getElementById('contact-email-error');
+
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errorEl.textContent = 'Please enter a valid email address.';
+        return;
+      }
+
+      const btn = document.getElementById('contact-btn-send');
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+      errorEl.textContent = '';
+
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000);
+
+      try {
+        const res = await fetch(`${serverUrl}/api/send-contact`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            name: document.getElementById('contact-name-input').value.trim(),
+            phone: document.getElementById('contact-phone-input').value.trim(),
+          }),
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeout);
+
+        if (res.ok) {
+          if (currentContactLeadId) {
+            fetch(`${serverUrl}/api/leads/${currentContactLeadId}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email }),
+            }).catch(() => {});
+          }
+          document.getElementById('contact-confirm-msg').textContent =
+            `Our contact information has been sent to ${email}.`;
+          showContactStep('confirm');
+        } else {
+          const data = await res.json().catch(() => ({}));
+          errorEl.textContent = data.error || 'Failed to send. Please try again.';
+        }
+      } catch {
+        clearTimeout(timeout);
+        errorEl.textContent = 'Could not reach the server. Please try again.';
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Send';
+    }
+
+    document.getElementById('contact-overlay').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closeContactModal();
+    });
+
+    async function startVideoCall() {
+      try {
+        const res = await fetch(`${serverUrl}/api/notify-boss`, { method: 'POST' });
+        window.appLog?.write(`notify-boss: ${res.status}`);
+      } catch (err) {
+        window.appLog?.write(`notify-boss error: ${err.message}`);
+      }
+      window.location.href = 'video-call.html';
+    }
+  </script>
+
+  <script>
+    const TIMEOUT_MS = 180 * 1000;
     let inactivityTimer;
 
     function goBack() {
+      sessionStorage.removeItem('kiosk_name');
+      sessionStorage.removeItem('kiosk_phone');
       window.location.href = 'index.html';
     }
 
@@ -119,10 +484,6 @@
 
     ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll', 'click'].forEach((ev) => {
       document.addEventListener(ev, resetTimer, { passive: true });
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' || e.key === 'Backspace') goBack();
     });
 
     resetTimer();

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Connecting...</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; background: #111; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; font-family: sans-serif; color: #fff; }
+    .spinner { width: 48px; height: 48px; border: 4px solid #333; border-top-color: #c0392b; border-radius: 50%; animation: spin 0.9s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    p { color: #aaa; font-size: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="spinner"></div>
+  <p>Starting video call...</p>
+  <script>
+    window.location.replace('https://meet.jit.si/jlcustoms-expert-kiosk#config.prejoinPageEnabled=false&userInfo.displayName=Customer');
+  </script>
+</body>
+</html>
