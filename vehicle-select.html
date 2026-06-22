@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JL Customs - Select Vehicle</title>
+  <link rel="stylesheet" href="theme.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background:
+        radial-gradient(150% 80% at 50% -10%, #ffffff 0%, rgba(255,255,255,0) 55%),
+        linear-gradient(180deg, var(--paper) 0%, #eceae3 100%);
+      color: var(--ink);
+      font-family: var(--font-ui);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 18px 32px;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid var(--line);
+      box-shadow: 0 2px 0 var(--brand), var(--shadow-sm);
+      flex-shrink: 0;
+    }
+
+    #back-btn {
+      background: none;
+      border: 1.5px solid var(--line-strong);
+      color: var(--steel);
+      padding: 9px 18px;
+      border-radius: var(--r-sm);
+      font-family: var(--font-ui);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+
+    #back-btn:hover {
+      border-color: var(--ink);
+      color: var(--ink);
+      background: var(--surface-2);
+    }
+
+    header h1 {
+      font-family: var(--font-display);
+      font-stretch: 112%;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.005em;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 32px;
+      gap: 30px;
+    }
+
+    .prompt {
+      font-family: var(--font-ui);
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--steel-soft);
+    }
+
+    .vehicle-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      width: 100%;
+      max-width: 760px;
+    }
+
+    .vehicle-btn {
+      position: relative;
+      padding: 48px 24px;
+      font-family: var(--font-display);
+      font-stretch: 115%;
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      color: var(--ink);
+      background: var(--surface);
+      border: 1.5px solid var(--line-strong);
+      border-radius: var(--r-lg);
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.18s var(--ease), transform 0.14s var(--ease),
+                  box-shadow 0.22s var(--ease), color 0.18s;
+      user-select: none;
+      overflow: hidden;
+    }
+
+    /* brand-red accent edge that grows on interaction */
+    .vehicle-btn::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--brand);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.2s var(--ease);
+    }
+
+    .vehicle-btn:hover {
+      border-color: var(--brand);
+      color: var(--brand);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+    }
+    .vehicle-btn:hover::before { transform: scaleX(1); }
+
+    .vehicle-btn:active {
+      transform: translateY(0) scale(0.98);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <button id="back-btn">&#8592; Back</button>
+    <h1>Select Your Vehicle</h1>
+  </header>
+
+  <main>
+    <p class="prompt">Choose your make</p>
+    <div class="vehicle-grid">
+      <button class="vehicle-btn" onclick="selectCompany('Ford')">Ford</button>
+      <button class="vehicle-btn" onclick="selectCompany('Ram')">Ram</button>
+      <button class="vehicle-btn" onclick="selectCompany('Mercedes')">Mercedes</button>
+      <button class="vehicle-btn" onclick="selectCompany('Chevy')">Chevy</button>
+    </div>
+  </main>
+
+  <script>
+    function selectCompany(company) {
+      window.location.href = `estimate.html?company=${encodeURIComponent(company)}`;
+    }
+
+    document.getElementById('back-btn').addEventListener('click', () => {
+      window.location.href = 'home.html';
+    });
+
+    const TIMEOUT_MS = 60 * 1000;
+    let inactivityTimer;
+
+    function resetTimer() {
+      clearTimeout(inactivityTimer);
+      inactivityTimer = setTimeout(() => {
+        window.location.href = 'index.html';
+      }, TIMEOUT_MS);
+    }
+
+    ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll', 'click'].forEach((ev) => {
+      document.addEventListener(ev, resetTimer, { passive: true });
+    });
+
+    resetTimer();
+  </script>
+</body>
+</html>

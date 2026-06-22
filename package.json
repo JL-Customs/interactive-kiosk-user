@@ -1,0 +1,55 @@
+{
+  "name": "interactive-kiosk-user-linux",
+  "version": "1.0.0",
+  "description": "Interactive kiosk app for JL Customs (Linux / Raspberry Pi build)",
+  "author": "JL Customs <info@jlcustoms.com>",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "kiosk": "KIOSK=1 electron .",
+    "build": "electron-builder --linux",
+    "dist": "dotenv -- electron-builder --linux --publish always"
+  },
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.0.0",
+    "dotenv-cli": "^7.0.0"
+  },
+  "dependencies": {
+    "electron-updater": "^6.0.0"
+  },
+  "build": {
+    "appId": "com.jlcustoms.user",
+    "productName": "JL-Customs-User",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!dist/**",
+      "!node_modules/electron-builder/**",
+      "!node_modules/.cache/**",
+      "!*.sh",
+      "!README-LINUX.md",
+      "!.env.example"
+    ],
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility",
+      "icon": "icon.png",
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    },
+    "deb": {
+      "compression": "gz"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "JL-Customs",
+      "repo": "interactive-kiosk-user"
+    }
+  }
+}
