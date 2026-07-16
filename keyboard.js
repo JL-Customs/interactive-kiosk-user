@@ -60,7 +60,6 @@
   let layer = 'letters';  // active key layer
   let shifted = false;    // caps for the letter layer
   let rootEl = null;      // .kb container
-  let hideTimer = null;
 
   // ── Text manipulation ──────────────────────────────────────
   function fireInput(el) {
@@ -155,7 +154,6 @@
 
   // ── Show / hide ────────────────────────────────────────────
   function show() {
-    clearTimeout(hideTimer);
     rootEl.classList.add('kb-visible');
     document.body.classList.add('kb-open');
   }
@@ -202,12 +200,19 @@
       }
     });
 
-    document.addEventListener('focusout', (e) => {
-      // Delay so focus moving to another field keeps the keyboard up.
-      hideTimer = setTimeout(() => {
-        if (!isEditable(document.activeElement)) hide();
-      }, 120);
-    });
+    // Hide only on a deliberate tap outside the keyboard and outside any
+    // field. We deliberately do NOT hide on `focusout`: on the Linux/
+    // Electron touch stack, tapping a field briefly bounces focus to
+    // <body>, which would otherwise slam the keyboard shut immediately.
+    function onOutsidePointer(e) {
+      if (!rootEl.classList.contains('kb-visible')) return;
+      const t = e.target;
+      if (t && t.closest && (t.closest('.kb') || isEditable(t))) return;
+      hide();
+    }
+    document.addEventListener('pointerdown', onOutsidePointer, true);
+    // Fallback for environments that don't deliver pointer events.
+    document.addEventListener('touchstart', onOutsidePointer, true);
   }
 
   if (document.readyState === 'loading') {
