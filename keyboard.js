@@ -1,7 +1,7 @@
 /* ============================================================
-   JL Customs — on-screen touch keyboard
+   JL Customs - on-screen touch keyboard
    Renders a QWERTY touch keyboard and wires it to any text field
-   on the page. Letters, numbers, and symbols only — deliberately
+   on the page. Letters, numbers, and symbols only - deliberately
    no function keys, tab, ctrl, alt, arrows, etc. Just what a
    customer needs to type a name, phone number, or email.
    ============================================================ */
@@ -199,6 +199,22 @@
         show();
       }
     });
+
+    // While the keyboard is up, swallow clicks that land on a modal
+    // backdrop. Opening the keyboard re-aligns the overlay (centered →
+    // top), so the modal jumps upward between the finger going down on
+    // the field and the click resolving - the click then lands on the
+    // exposed backdrop and would otherwise dismiss the dialog. The
+    // modal's own Cancel/close buttons are inside .modal, so they're
+    // unaffected. Capture phase so we win before the app's handler.
+    document.addEventListener('click', (e) => {
+      if (!document.body.classList.contains('kb-open')) return;
+      const t = e.target;
+      if (t && t.classList && t.classList.contains('modal-overlay')) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+    }, true);
 
     // Hide only on a deliberate tap outside the keyboard and outside any
     // field. We deliberately do NOT hide on `focusout`: on the Linux/

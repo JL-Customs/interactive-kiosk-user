@@ -20,7 +20,7 @@ if (process.env.DISABLE_GPU === '1') {
 
 // electron-updater can only self-update a packaged AppImage on Linux. When the
 // app is run unpackaged (npm start) or installed as a .deb, skip the updater so
-// it doesn't spam errors — there is simply nothing it can do in those modes.
+// it doesn't spam errors - there is simply nothing it can do in those modes.
 function canAutoUpdate() {
   if (!app.isPackaged) return false;
   if (process.platform === 'linux') return Boolean(process.env.APPIMAGE);
@@ -41,7 +41,7 @@ autoUpdater.on('checking-for-update',   () => log('Checking for update...'));
 autoUpdater.on('update-available',      (i) => log(`Update available: v${i.version}`));
 autoUpdater.on('update-not-available',  (i) => log(`Up to date: v${i.version}`));
 autoUpdater.on('download-progress',     (p) => log(`Downloading: ${Math.round(p.percent)}%`));
-autoUpdater.on('update-downloaded',     (i) => { log(`Update downloaded: v${i.version} — installing`); autoUpdater.quitAndInstall(true, true); });
+autoUpdater.on('update-downloaded',     (i) => { log(`Update downloaded: v${i.version} - installing`); autoUpdater.quitAndInstall(true, true); });
 autoUpdater.on('error',                 (e) => log(`Updater error: ${e.message}`));
 
 function setupCache() {
@@ -93,6 +93,41 @@ ipcMain.handle('window:get-fullscreen', () => {
   return mainWindow.isFullScreen();
 });
 
+// Fall back to Chromium's own silent print (needs a CUPS queue + driver).
+// Kept for dev machines and for any printer that isn't the PeriPage.
+function chromiumPrint() {
+  return new Promise((resolve) => {
+    if (!mainWindow) return resolve({ success: false, error: 'no window' });
+    mainWindow.webContents.print(
+      { silent: true, printBackground: false, margins: { marginType: 'default' } },
+      (success, failureReason) => {
+        if (!success) log(`chromium print failed: ${failureReason}`);
+        resolve({ success, error: success ? null : failureReason });
+      }
+    );
+  });
+}
+
+// Silent print. The A40a is a raster-only PeriPage device with no text mode
+// and no usable CUPS driver on the Pi, so we render the page's print-area to
+// a bitmap and write the vendor's wire protocol straight to /dev/usb/lp0.
+// If no such printer is attached, fall back to the normal Chromium path.
+ipcMain.handle('print:silent', async () => {
+  if (!mainWindow) return { success: false, error: 'no window' };
+
+  if (process.env.PERIPAGE_DISABLE === '1') return chromiumPrint();
+
+  try {
+    const { printPrintArea } = require('./peripage-render');
+    const result = await printPrintArea(mainWindow.webContents);
+    log(`peripage: printed ${result.bytes} bytes to ${result.device}`);
+    return { success: true, error: null };
+  } catch (err) {
+    log(`peripage print failed (${err.message}) - falling back to chromium`);
+    return chromiumPrint();
+  }
+});
+
 ipcMain.handle('cache:save-metadata', (event, photos) => {
   const metadataPath = path.join(cacheDir, 'metadata.json');
   fs.writeFileSync(metadataPath, JSON.stringify(photos, null, 2));
@@ -138,7 +173,7 @@ ipcMain.handle('cache:get-local-path', (event, filename) => {
 
 app.on('ready', () => {
   logPath = path.join(app.getPath('userData'), 'updater.log');
-  log(`App started — version ${app.getVersion()}`);
+  log(`App started - version ${app.getVersion()}`);
   setupCache();
   Menu.setApplicationMenu(null);
 
