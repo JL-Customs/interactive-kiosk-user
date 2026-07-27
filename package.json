@@ -1,6 +1,6 @@
 {
   "name": "interactive-kiosk-user-linux",
-  "version": "1.2.0",
+  "version": "1.3.1",
   "description": "Interactive kiosk app for JL Customs (Linux / Raspberry Pi build)",
   "author": "JL Customs",
   "main": "main.js",

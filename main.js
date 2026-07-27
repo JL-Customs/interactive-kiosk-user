@@ -111,7 +111,6 @@ function chromiumPrint() {
 // Silent print. The A40a is a raster-only PeriPage device with no text mode
 // and no usable CUPS driver on the Pi, so we render the page's print-area to
 // a bitmap and write the vendor's wire protocol straight to /dev/usb/lp0.
-// If no such printer is attached, fall back to the normal Chromium path.
 ipcMain.handle('print:silent', async () => {
   if (!mainWindow) return { success: false, error: 'no window' };
 
@@ -123,8 +122,12 @@ ipcMain.handle('print:silent', async () => {
     log(`peripage: printed ${result.bytes} bytes to ${result.device}`);
     return { success: true, error: null };
   } catch (err) {
-    log(`peripage print failed (${err.message}) - falling back to chromium`);
-    return chromiumPrint();
+    // Don't silently fall back to Chromium: it can't drive this raster-only
+    // printer, so it would report a false "sent to printer". Surface the real
+    // error instead (e.g. printer not plugged into the Pi, or no lp-group
+    // permission on /dev/usb/lp0). Use PERIPAGE_DISABLE=1 for a CUPS printer.
+    log(`peripage print failed: ${err.message}`);
+    return { success: false, error: err.message };
   }
 });
 

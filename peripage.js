@@ -228,12 +228,97 @@ function writeToDevice(job, device, timeoutMs = 120000) {
   });
 }
 
+/**
+ * Windows has no /dev/usb/lp0. The printer sits behind the spooler, so we send
+ * the same raw bytes to a print queue with the RAW datatype (which bypasses the
+ * driver's rendering and hands the bytes straight to the USB port). Done via a
+ * short winspool P/Invoke script so there is no native-module dependency.
+ *
+ * The target queue defaults to PERIPAGE_WIN_PRINTER, else "A40a Raw". Any queue
+ * pointed at the printer's USB port works as long as it passes RAW through.
+ */
+function writeToWindowsPrinter(job, printerName, timeoutMs = 120000) {
+  return new Promise((resolve, reject) => {
+    const os = require('os');
+    const path = require('path');
+    const cp = require('child_process');
+
+    const stamp = `peripage-${process.pid}-${Date.now()}`;
+    const binPath = path.join(os.tmpdir(), stamp + '.bin');
+    const psPath = path.join(os.tmpdir(), stamp + '.ps1');
+
+    const ps = [
+      '$ErrorActionPreference = "Stop"',
+      'Add-Type -TypeDefinition @"',
+      'using System; using System.IO; using System.Runtime.InteropServices;',
+      'public static class PPRaw {',
+      '  [StructLayout(LayoutKind.Sequential, CharSet=CharSet.Unicode)] public struct DI { public string a; public string b; public string c; }',
+      '  [DllImport("winspool.drv", CharSet=CharSet.Unicode, SetLastError=true)] static extern bool OpenPrinter(string s, out IntPtr h, IntPtr p);',
+      '  [DllImport("winspool.drv", SetLastError=true)] static extern bool ClosePrinter(IntPtr h);',
+      '  [DllImport("winspool.drv", CharSet=CharSet.Unicode, SetLastError=true)] static extern int StartDocPrinter(IntPtr h, int l, ref DI d);',
+      '  [DllImport("winspool.drv", SetLastError=true)] static extern bool EndDocPrinter(IntPtr h);',
+      '  [DllImport("winspool.drv", SetLastError=true)] static extern bool StartPagePrinter(IntPtr h);',
+      '  [DllImport("winspool.drv", SetLastError=true)] static extern bool EndPagePrinter(IntPtr h);',
+      '  [DllImport("winspool.drv", SetLastError=true)] static extern bool WritePrinter(IntPtr h, byte[] b, int c, out int w);',
+      '  public static void Send(string printer, string file) {',
+      '    byte[] by = File.ReadAllBytes(file); IntPtr h;',
+      '    if (!OpenPrinter(printer, out h, IntPtr.Zero)) throw new Exception("OpenPrinter failed " + Marshal.GetLastWin32Error());',
+      '    try { DI d = new DI(); d.a = "JL estimate"; d.c = "RAW";',
+      '      if (StartDocPrinter(h, 1, ref d) == 0) throw new Exception("StartDocPrinter failed " + Marshal.GetLastWin32Error());',
+      '      StartPagePrinter(h); int w; WritePrinter(h, by, by.Length, out w); EndPagePrinter(h); EndDocPrinter(h);',
+      '    } finally { ClosePrinter(h); }',
+      '  }',
+      '}',
+      '"@',
+      '[PPRaw]::Send($env:PP_PRINTER, $env:PP_FILE)'
+    ].join('\n');
+
+    try {
+      fs.writeFileSync(binPath, job);
+      fs.writeFileSync(psPath, ps);
+    } catch (err) { return reject(err); }
+
+    const cleanup = () => { fs.unlink(binPath, () => {}); fs.unlink(psPath, () => {}); };
+
+    const child = cp.spawn('powershell.exe',
+      ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', psPath],
+      { env: { ...process.env, PP_PRINTER: printerName, PP_FILE: binPath }, windowsHide: true });
+
+    let stderr = '';
+    const timer = setTimeout(() => {
+      child.kill();
+      cleanup();
+      reject(new Error(`windows print timed out after ${timeoutMs}ms`));
+    }, timeoutMs);
+
+    child.stderr.on('data', (d) => { stderr += d.toString(); });
+    child.on('error', (err) => { clearTimeout(timer); cleanup(); reject(err); });
+    child.on('close', (code) => {
+      clearTimeout(timer);
+      cleanup();
+      if (code === 0) resolve({ bytes: job.length, device: printerName });
+      else reject(new Error(
+        `winspool print to "${printerName}" failed (exit ${code}): ${stderr.trim() || 'unknown error'}`
+      ));
+    });
+  });
+}
+
+/** Send a finished job to the printer, picking the transport for the platform. */
+async function sendJob(job, opts = {}) {
+  if (process.platform === 'win32') {
+    const printer = opts.winPrinter || process.env.PERIPAGE_WIN_PRINTER || 'A40a Raw';
+    return writeToWindowsPrinter(job, printer, opts.timeoutMs);
+  }
+  const device = opts.device || await findDevice();
+  return writeToDevice(job, device, opts.timeoutMs);
+}
+
 /** Render RGBA pixels straight to the printer. */
 async function printRgba(rgba, w, h, opts = {}) {
   const { raster, widthBytes } = rgbaToRaster(rgba, w, h, opts);
   const job = buildJob(raster, widthBytes);
-  const device = opts.device || await findDevice();
-  return writeToDevice(job, device, opts.timeoutMs);
+  return sendJob(job, opts);
 }
 
 module.exports = {
@@ -245,5 +330,7 @@ module.exports = {
   rgbaToRaster,
   findDevice,
   writeToDevice,
+  writeToWindowsPrinter,
+  sendJob,
   printRgba
 };
